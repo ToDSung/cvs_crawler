@@ -1,10 +1,13 @@
+import json
 import time
 
 import requests
 from pyquery import PyQuery as pq
 
+from my_date_tool import covert_string_to_datetime, covert_datetime_to_string
+
 def get_web_page(url): #原始地址
-    time.sleep(0.5)  # 每次爬取前暫停 0.5 秒以免被 PTT 網站判定為大量惡意爬取
+    time.sleep(0.1)  # 每次爬取前暫停 0.5 秒以免被 PTT 網站判定為大量惡意爬取
     response = requests.get(
         url=url,
         cookies={'over18': '1'}
@@ -19,16 +22,29 @@ if __name__ == '__main__':
     PTT_URL = 'https://www.ptt.cc/'
     CSV_URL = 'https://www.ptt.cc/bbs/CVS/index.html'
     current_page_pq = get_web_page(CSV_URL)
-    for crawled_page_count in range(10):
+    
+    output_list = []
+    
+    for crawled_page_count in range(1):
         previous_page_url = current_page_pq('.btn-group-paging .wide')[1].items()[1][1]
-        print(previous_page_url)
         for article in current_page_pq('.r-ent .title a').items():
-            print(f"{PTT_URL}{article.attr('href')}")
             article_pq =  get_web_page(f"{PTT_URL}{article.attr('href')}")
             article_info_generator = article_pq('.article-metaline  .article-meta-value').items()
             article_info = [article_info.text() for article_info in article_info_generator]
-            print(article_info)
+            
+            try:
+                output_list.append({                
+                    "文章標題": article_info[1],
+                    "文章作者": article_info[0],
+                    "文章時間": covert_datetime_to_string(covert_string_to_datetime(article_info[2], '%a %b %d %H:%M:%S %Y'), '%Y/%m/%d %H:%M:%S')
+                    "文章網址": f"{PTT_URL}{article.attr('href')}"
+                })
+            except:
+                pass
             # for push in article_pq('.push').items():
             #     print(push('.push-content').text()[2:])
 
         current_page_pq = get_web_page(f"{PTT_URL}{previous_page_url}")
+        
+    with open ('./cvs.json', 'w', encoding='utf-8') as f:
+        json.dump(output_list, f, ensure_ascii=False, indent=4)
