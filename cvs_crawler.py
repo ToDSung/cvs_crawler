@@ -32,17 +32,33 @@ if __name__ == '__main__':
             article_info_generator = article_pq('.article-metaline  .article-meta-value').items()
             article_info = [article_info.text() for article_info in article_info_generator]
             
+            push_count = 0
+            bull_count = 0
+            arrow_count = 0
+            for push_content in article_pq('.push').items():
+                # print(push_content('.push-content').text()[2:])
+                push_label = push_content('.push-tag').text()
+                if push_label == '推':
+                    push_count += 1
+                elif push_label == '噓':
+                    bull_count += 1
+                elif push_label == '→':
+                    arrow_count += 1
+                    
             try:
                 output_list.append({                
                     "文章標題": article_info[1],
                     "文章作者": article_info[0],
-                    "文章時間": covert_datetime_to_string(covert_string_to_datetime(article_info[2], '%a %b %d %H:%M:%S %Y'), '%Y/%m/%d %H:%M:%S')
-                    "文章網址": f"{PTT_URL}{article.attr('href')}"
+                    "文章時間": covert_datetime_to_string(covert_string_to_datetime(article_info[2], '%a %b %d %H:%M:%S %Y'), '%Y/%m/%d %H:%M:%S'),
+                    "文章網址": f"{PTT_URL}{article.attr('href')}",
+                    "留言數": push_count + bull_count + arrow_count,
+                    "推文數": push_count,
+                    "噓文數": bull_count,
+                    "箭頭數": arrow_count
                 })
+                
             except:
                 pass
-            # for push in article_pq('.push').items():
-            #     print(push('.push-content').text()[2:])
 
         current_page_pq = get_web_page(f"{PTT_URL}{previous_page_url}")
         
