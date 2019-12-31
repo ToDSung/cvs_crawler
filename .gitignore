@@ -1,0 +1,12 @@
+*.pyc
+*.json
+
+#資料夾
+.vscode
+log/
+__pycache__/
+
+#單一檔案
+.DS_Store
+www/cvs_api/cvs_api/__pycache__/urls.cpython-36.pyc.139634496670720
+www/cvs_api/cvs_api/__pycache__/urls.cpython-36.pyc.139634496676336

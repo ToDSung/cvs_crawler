@@ -10,7 +10,8 @@ def get_web_page(url): #原始地址
     time.sleep(0.1)  # 每次爬取前暫停 0.5 秒以免被 PTT 網站判定為大量惡意爬取
     response = requests.get(
         url=url,
-        cookies={'over18': '1'}
+        cookies={'over18': '1'},
+        verify=False
     )
     #if resp.status_code != 200:
     #    print('Invalid url:', resp.url)
@@ -35,7 +36,7 @@ if __name__ == '__main__':
     
     output_list = []
     
-    for crawled_page_count in range(3):
+    for crawled_page_count in range(1):
         previous_page_url = current_page_pq('.btn-group-paging .wide')[1].items()[1][1]
         for article in current_page_pq('.r-ent .title a').items():
             article_pq =  get_web_page(f"{PTT_URL}{article.attr('href')}")
@@ -83,4 +84,5 @@ if __name__ == '__main__':
         current_page_pq = get_web_page(f"{PTT_URL}{previous_page_url}")
         
     with open ('./cvs.json', 'w', encoding='utf-8') as f:
+        output_list = sorted(output_list, key=lambda x: x['文章時間'], reverse=True)
         json.dump(output_list, f, ensure_ascii=False, indent=4)

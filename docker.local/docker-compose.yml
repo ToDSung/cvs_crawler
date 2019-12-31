@@ -1,0 +1,53 @@
+version: '3.7'
+services:
+  web:
+    image: cvs_api:20.1.1
+    ports:
+      - "8787:8787"
+      - "8000:8000"
+    networks:
+      - net
+    configs:
+      - source: DB_CONFIG
+        target: /var/www/cvs_api/etc/db_config.json 
+    volumes:
+      - code_volume:/var/www/cvs_api
+  db:
+    image: mysql:5.7.22
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: "cvs_api+123!"
+      MYSQL_DATABASE: cvs_api
+      MYSQL_USER: cvs_api
+      MYSQL_PASSWORD: cvs_api+123!
+      CLUSTER_NAME: cluster_name
+    ports:
+      - "8997:3306"
+    networks:
+      - net
+    volumes:
+      - db_volume:/var/lib/mysql
+  
+networks:
+    net:
+        driver: overlay
+        attachable: true
+
+volumes:
+  code_volume:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /c/Users/wluna/Desktop/my_git_hub/cvs_crawler/www/cvs_api
+
+  db_volume:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /c/Users/wluna/Desktop/my_git_hub/cvs_crawler_mysql
+      
+configs:
+  DB_CONFIG:
+    file: ./etc.local/db_config.json
