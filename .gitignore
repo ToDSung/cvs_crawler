@@ -1,6 +1,7 @@
 *.pyc
 *.json
 *.yaml
+*.yml
 
 #資料夾
 .vscode
